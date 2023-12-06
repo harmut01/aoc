@@ -1,6 +1,7 @@
 import click
 import re
 from helpers import *
+import pprint
 
 def get_ints(string, start=0, end=-1):
     return re.findall("\\d+", string[start:end])
@@ -25,29 +26,23 @@ def part1(data):
 
 def part2(data):
     get_card_num  = lambda s: re.search("\\d+", s)[0]
-    new_cards = {}
+    new_cards = {f"{i}": 1 for i in range(1, len(data) + 1)}
+    print(new_cards)
+    num_cards = len(data)
 
     for i, line in enumerate(data):
         current_card = get_card_num(line)
-        if current_card not in new_cards:
-            new_cards[current_card] = 1
-        else:
-            new_cards[current_card] += 1
-        line = line[line.find(':'):]
-        sep = line.find('|')
-
-        winners = get_ints(line, end=sep)
-        chosen = get_ints(line, start=sep)
+        winners = get_ints(line, start=line.find(':'), end=line.find('|'))
+        chosen = get_ints(line, start=line.find('|'))
 
         winning_nums = list(filter(lambda n: n in winners, chosen))
-        for j, row in enumerate(data[i+1:i+len(winning_nums)+1], start=i+1):
-            card = get_card_num(row)
+        for j in range(1, len(winning_nums) + 1):
+            card = get_card_num(data[i + j])
             if card not in new_cards:
                 new_cards[card] = 1
             else:
                 new_cards[card] += new_cards[current_card]
-            print(current_card, "new card = ", card, new_cards[card])
-    print(new_cards)
+            # print(current_card, "new card = ", card, new_cards[card])
     print(sum(new_cards.values()))
 
 @click.command()
